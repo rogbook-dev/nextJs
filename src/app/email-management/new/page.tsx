@@ -78,10 +78,6 @@ export default function NewEmailCampaignPage() {
   const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
   const [newGroupName, setNewGroupName] = useState("");
   const [newGroupMembers, setNewGroupMembers] = useState<Member[]>([]);
-  const dummyGroups = [
-    { id: 1, name: "신규가입자", count: 12 },
-    { id: 2, name: "뉴스레터 구독자", count: 30 },
-  ];
   const dummyStores = [
     { id: 1, name: "넷마블" },
     { id: 2, name: "페이히어" },
@@ -120,7 +116,7 @@ export default function NewEmailCampaignPage() {
     let result = dummyMembers;
     if (selectedStore) {
       // 예시: 상점 id가 1인 경우만 회원이 있다고 가정
-      result = result.filter(m => selectedStore === 1);
+      result = result.filter(() => selectedStore === 1);
     }
     if (searchName.trim()) {
       result = result.filter(m => m.name.includes(searchName.trim()));
