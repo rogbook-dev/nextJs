@@ -2,9 +2,9 @@
 import { useState } from "react";
 
 const dummyStores = [
-  { id: 1, name: "CONIA 본점" },
-  { id: 2, name: "강남점" },
-  { id: 3, name: "부산점" },
+  { id: 1, name: "넷마블" },
+  { id: 2, name: "페이히어" },
+  { id: 3, name: "kcp" },
 ];
 const memberStatusOptions = [
   { label: "전체", value: "all" },

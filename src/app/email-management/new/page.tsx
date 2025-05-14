@@ -72,20 +72,20 @@ export default function NewEmailCampaignPage() {
   const [searchName, setSearchName] = useState("");
   const [filteredMembers, setFilteredMembers] = useState<Member[]>([]);
   const [groups, setGroups] = useState<GroupType[]>([
-    { id: 1, name: "VIP 고객", members: [dummyMembers[0]], createdAt: "2024-06-01" },
+    { id: 1, name: "신규가입자", members: [dummyMembers[0]], createdAt: "2024-06-01" },
     { id: 2, name: "뉴스레터 구독자", members: [dummyMembers[1], dummyMembers[2]], createdAt: "2024-06-02" },
   ]);
   const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
   const [newGroupName, setNewGroupName] = useState("");
   const [newGroupMembers, setNewGroupMembers] = useState<Member[]>([]);
   const dummyGroups = [
-    { id: 1, name: "VIP 고객", count: 12 },
+    { id: 1, name: "신규가입자", count: 12 },
     { id: 2, name: "뉴스레터 구독자", count: 30 },
   ];
   const dummyStores = [
-    { id: 1, name: "CONIA 본점" },
-    { id: 2, name: "강남점" },
-    { id: 3, name: "부산점" },
+    { id: 1, name: "넷마블" },
+    { id: 2, name: "페이히어" },
+    { id: 3, name: "kcp" },
   ];
 
   const memberStatusOptions = [
