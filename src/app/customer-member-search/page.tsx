@@ -63,6 +63,13 @@ export default function CustomerMemberSearchPage() {
   const [joinDateEnd, setJoinDateEnd] = useState("");
   const [detailSearchType, setDetailSearchType] = useState("name");
   const [detailSearchValue, setDetailSearchValue] = useState("");
+  const [showSendMailLayer, setShowSendMailLayer] = useState(false);
+  const [selectedMemberForSend, setSelectedMemberForSend] = useState<any>(null);
+
+  const handleSendMailClick = (member: any) => {
+    setSelectedMemberForSend(member);
+    setShowSendMailLayer(true);
+  };
 
   return (
     <div className="flex min-h-screen bg-white">
@@ -200,7 +207,9 @@ export default function CustomerMemberSearchPage() {
                   <td className="p-2">{member.usage}</td>
                   <td className="p-2">{member.marketing}</td>
                   <td className="p-2">2025.03.27 10:07</td>
-                  <td className="p-2"><button className="bg-white border border-gray-300 px-3 py-1 rounded">발송</button></td>
+                  <td className="p-2">
+                    <button className="bg-white border border-gray-300 px-3 py-1 rounded" onClick={() => handleSendMailClick(member)}>발송</button>
+                  </td>
                   <td className="p-2"><button className="bg-white border border-gray-300 px-3 py-1 rounded">상세보기</button></td>
                 </tr>
               ))}
@@ -219,6 +228,41 @@ export default function CustomerMemberSearchPage() {
           </div>
         </div>
       </div>
+      {/* 메일 발송 팝업 레이어 */}
+      {showSendMailLayer && selectedMemberForSend && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <div className="bg-white rounded-xl shadow-lg w-[500px] max-w-full p-8 flex flex-col">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold">이메일 발송</h3>
+              <button onClick={() => setShowSendMailLayer(false)}><i className="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div className="mb-4">
+              <label className="block text-base font-medium text-gray-700 mb-2">보내는 사람 이름</label>
+              <input type="text" className="w-full rounded-lg border border-[#cbd5e1] bg-white px-4 py-3 text-base text-slate-800" value={selectedMemberForSend.name} readOnly />
+            </div>
+            <div className="mb-4">
+              <label className="block text-base font-medium text-gray-700 mb-2">보내는 사람 이메일 주소</label>
+              <input type="email" className="w-full rounded-lg border border-[#cbd5e1] bg-white px-4 py-3 text-base text-slate-800" value="contact@conia.co.kr" readOnly />
+            </div>
+            <div className="mb-4">
+              <label className="block text-base font-medium text-gray-700 mb-2">이메일 제목</label>
+              <input type="text" className="w-full rounded-lg border border-[#cbd5e1] bg-white px-4 py-3 text-base text-slate-800" placeholder="수신자가 보게 될 이메일 제목" />
+            </div>
+            <div className="mb-4">
+              <label className="block text-base font-medium text-gray-700 mb-2">이메일 본문</label>
+              <textarea className="w-full h-32 rounded-lg border border-[#cbd5e1] bg-white px-4 py-3 text-base text-slate-800" placeholder="이메일 내용을 입력하세요"></textarea>
+            </div>
+            <div className="flex gap-2 mb-4">
+              <button className="px-4 py-2 rounded-lg bg-[#f1f5f9] text-slate-600 font-semibold border border-[#e5e7eb] text-sm">템플릿 사용</button>
+              <button className="px-4 py-2 rounded-lg bg-[#f1f5f9] text-slate-600 font-semibold border border-[#e5e7eb] text-sm">HTML 직접 입력</button>
+            </div>
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setShowSendMailLayer(false)} className="px-4 py-2 rounded bg-gray-200">닫기</button>
+              <button className="px-4 py-2 rounded bg-blue-500 text-white font-semibold">발송</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
