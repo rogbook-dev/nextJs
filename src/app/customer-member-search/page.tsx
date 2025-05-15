@@ -1,6 +1,19 @@
 "use client";
 import { useState } from "react";
 
+// Member 타입 정의 (중복 방지)
+type Member = {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  joinDate: string;
+  status?: string;
+  usage?: string;
+  marketing?: string;
+  lastSent?: string;
+};
+
 const dummyStores = [
   { id: 1, name: "넷마블" },
   { id: 2, name: "페이히어" },
@@ -64,12 +77,41 @@ export default function CustomerMemberSearchPage() {
   const [detailSearchType, setDetailSearchType] = useState("name");
   const [detailSearchValue, setDetailSearchValue] = useState("");
   const [showSendMailLayer, setShowSendMailLayer] = useState(false);
-  const [selectedMemberForSend, setSelectedMemberForSend] = useState<any>(null);
+  const [selectedMemberForSend, setSelectedMemberForSend] = useState<Member | null>(null);
+  const [selectedMembersForSend, setSelectedMembersForSend] = useState<Member[]>([]);
+  const [selectedMembers, setSelectedMembers] = useState<Member[]>([]);
 
-  const handleSendMailClick = (member: any) => {
+  const handleSendMailClick = (member: Member) => {
     setSelectedMemberForSend(member);
+    setSelectedMembersForSend([]);
     setShowSendMailLayer(true);
   };
+
+  const handleSendMailMultiClick = () => {
+    setSelectedMemberForSend(null);
+    setSelectedMembersForSend(selectedMembers);
+    setShowSendMailLayer(true);
+  };
+
+  // 전체 선택 체크박스 핸들러
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedMembers(dummyMembers);
+    } else {
+      setSelectedMembers([]);
+    }
+  };
+  // 개별 체크박스 핸들러
+  const handleSelectMember = (member: Member, checked: boolean) => {
+    if (checked) {
+      setSelectedMembers(prev => [...prev, member]);
+    } else {
+      setSelectedMembers(prev => prev.filter(m => m.id !== member.id));
+    }
+  };
+  // 전체 선택 체크박스 상태
+  const isAllSelected = selectedMembers.length === dummyMembers.length && dummyMembers.length > 0;
+  const isIndeterminate = selectedMembers.length > 0 && selectedMembers.length < dummyMembers.length;
 
   return (
     <div className="flex min-h-screen bg-white">
@@ -169,7 +211,7 @@ export default function CustomerMemberSearchPage() {
             <div className="text-gray-500">총 1187개</div>
             <div className="flex gap-2 items-center">
               <button className="border px-3 py-1 rounded text-sm text-cyan-700 border-cyan-400">조회내역 엑셀다운로드</button>
-              <button className="bg-orange-500 text-white px-3 py-1 rounded text-sm font-semibold">선택항목 엑셀발송</button>
+              <button className="px-4 py-2 rounded bg-blue-500 text-white font-semibold" onClick={handleSendMailMultiClick} disabled={selectedMembers.length === 0}>선택항목 이메일 발송</button>
               <select className="border rounded px-2 py-1 text-sm">
                 <option>10개씩 보기</option>
                 <option>20개씩 보기</option>
@@ -180,7 +222,14 @@ export default function CustomerMemberSearchPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-slate-50 text-gray-700">
-                <th className="p-2"><input type="checkbox" /></th>
+                <th className="p-2">
+                  <input
+                    type="checkbox"
+                    checked={isAllSelected}
+                    ref={el => { if (el) el.indeterminate = isIndeterminate; }}
+                    onChange={e => handleSelectAll(e.target.checked)}
+                  />
+                </th>
                 <th className="p-2">이름</th>
                 <th className="p-2">아이디</th>
                 <th className="p-2">휴대전화</th>
@@ -197,7 +246,13 @@ export default function CustomerMemberSearchPage() {
             <tbody>
               {dummyMembers.map(member => (
                 <tr key={member.id} className="border-t text-center">
-                  <td className="p-2"><input type="checkbox" /></td>
+                  <td className="p-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedMembers.some(m => m.id === member.id)}
+                      onChange={e => handleSelectMember(member, e.target.checked)}
+                    />
+                  </td>
                   <td className="p-2">{member.name}</td>
                   <td className="p-2">{member.email}</td>
                   <td className="p-2">{member.phone}</td>
@@ -229,35 +284,44 @@ export default function CustomerMemberSearchPage() {
         </div>
       </div>
       {/* 메일 발송 팝업 레이어 */}
-      {showSendMailLayer && selectedMemberForSend && (
+      {showSendMailLayer && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
           <div className="bg-white rounded-xl shadow-lg w-[500px] max-w-full p-8 flex flex-col">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold">이메일 발송</h3>
               <button onClick={() => setShowSendMailLayer(false)}><i className="fa-solid fa-xmark text-xl"></i></button>
             </div>
+            {/* 선택 회원 이름 목록 표시 */}
+            {selectedMemberForSend && (
+              <div className="mb-4">
+                <div className="font-semibold">보내는 사람</div>
+                <div className="mb-2">{selectedMemberForSend.name}</div>
+                <div className="font-semibold">보내는 사람 이메일</div>
+                <div className="mb-2">contact@conia.co.kr</div>
+              </div>
+            )}
+            {selectedMembersForSend.length > 0 && (
+              <div className="mb-4">
+                <div className="font-semibold mb-1">선택 회원 목록</div>
+                <div className="mb-2 text-gray-700">{selectedMembersForSend.map(m => m.name).join(", ")}</div>
+                <div className="font-semibold">보내는 사람 이메일</div>
+                <div className="mb-2">contact@conia.co.kr</div>
+              </div>
+            )}
             <div className="mb-4">
-              <label className="block text-base font-medium text-gray-700 mb-2">보내는 사람 이름</label>
-              <input type="text" className="w-full rounded-lg border border-[#cbd5e1] bg-white px-4 py-3 text-base text-slate-800" value={selectedMemberForSend.name} readOnly />
+              <div className="font-semibold">제목</div>
+              <input className="border rounded px-3 py-2 w-full" placeholder="이메일 제목을 입력하세요" />
             </div>
             <div className="mb-4">
-              <label className="block text-base font-medium text-gray-700 mb-2">보내는 사람 이메일 주소</label>
-              <input type="email" className="w-full rounded-lg border border-[#cbd5e1] bg-white px-4 py-3 text-base text-slate-800" value="contact@conia.co.kr" readOnly />
+              <div className="font-semibold">내용</div>
+              <textarea className="border rounded px-3 py-2 w-full h-32" placeholder="이메일 내용을 입력하세요"></textarea>
+              <div className="flex gap-2 mt-2">
+                <button className="px-4 py-2 rounded-lg bg-[#f1f5f9] text-slate-600 font-semibold border border-[#e5e7eb] text-sm">템플릿 사용</button>
+                <button className="px-4 py-2 rounded-lg bg-[#f1f5f9] text-slate-600 font-semibold border border-[#e5e7eb] text-sm">HTML 직접 입력</button>
+              </div>
             </div>
-            <div className="mb-4">
-              <label className="block text-base font-medium text-gray-700 mb-2">이메일 제목</label>
-              <input type="text" className="w-full rounded-lg border border-[#cbd5e1] bg-white px-4 py-3 text-base text-slate-800" placeholder="수신자가 보게 될 이메일 제목" />
-            </div>
-            <div className="mb-4">
-              <label className="block text-base font-medium text-gray-700 mb-2">이메일 본문</label>
-              <textarea className="w-full h-32 rounded-lg border border-[#cbd5e1] bg-white px-4 py-3 text-base text-slate-800" placeholder="이메일 내용을 입력하세요"></textarea>
-            </div>
-            <div className="flex gap-2 mb-4">
-              <button className="px-4 py-2 rounded-lg bg-[#f1f5f9] text-slate-600 font-semibold border border-[#e5e7eb] text-sm">템플릿 사용</button>
-              <button className="px-4 py-2 rounded-lg bg-[#f1f5f9] text-slate-600 font-semibold border border-[#e5e7eb] text-sm">HTML 직접 입력</button>
-            </div>
-            <div className="flex justify-end gap-2">
-              <button onClick={() => setShowSendMailLayer(false)} className="px-4 py-2 rounded bg-gray-200">닫기</button>
+            <div className="flex gap-2 justify-end">
+              <button onClick={() => setShowSendMailLayer(false)} className="px-4 py-2 rounded bg-gray-200">취소</button>
               <button className="px-4 py-2 rounded bg-blue-500 text-white font-semibold">발송</button>
             </div>
           </div>
